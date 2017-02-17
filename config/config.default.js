@@ -242,5 +242,12 @@ module.exports = appInfo => {
    */
   config.workerStartTimeout = 10 * 60 * 1000;
 
+  config.view = {
+    root: path.join(appInfo.baseDir, 'app/view'),
+    cache: true,
+    defaultExt: '.html',
+    mapping: {},
+  };
+
   return config;
 };

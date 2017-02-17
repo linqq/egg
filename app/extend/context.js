@@ -5,7 +5,7 @@ const ContextLogger = require('egg-logger').EggContextLogger;
 const Cookies = require('egg-cookies');
 const co = require('co');
 const ContextHttpClient = require('../../lib/core/context_httpclient');
-const createView = require('../../lib/core/view');
+const ContextView = require('../../lib/core/context_view');
 const util = require('../../lib/core/util');
 
 const HELPER = Symbol('Context#helper');
@@ -133,7 +133,7 @@ const proto = module.exports = {
    */
   get view() {
     if (!this[VIEW]) {
-      this[VIEW] = createView(this);
+      this[VIEW] = new ContextView(this);
     }
     return this[VIEW];
   },
@@ -145,8 +145,8 @@ const proto = module.exports = {
    * @param {Object} [locals] - locals
    * @return {Promise} resolve when render completed
    */
-  render(name, locals) {
-    return this.renderView(name, locals).then(body => {
+  render(...args) {
+    return this.renderView(...args).then(body => {
       this.body = body;
     });
   },
@@ -159,8 +159,8 @@ const proto = module.exports = {
    * @return {Promise} resolve html string
    * @see View#render
    */
-  renderView(name, locals) {
-    return this.view.render(name, locals);
+  renderView(...args) {
+    return this.view.render(...args);
   },
 
   /**
@@ -171,8 +171,8 @@ const proto = module.exports = {
    * @return {Promise} resolve html string
    * @see View#renderString
    */
-  renderString(tpl, locals) {
-    return this.view.renderString(tpl, locals);
+  renderString(...args) {
+    return this.view.renderString(...args);
   },
 
   /**
