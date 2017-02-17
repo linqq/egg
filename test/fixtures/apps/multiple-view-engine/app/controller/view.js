@@ -24,3 +24,30 @@ exports.renderWithoutViewEngine = ctx => {
 exports.renderMultipleRoot = ctx => ctx.render('loader/from-view2.ejs');
 exports.renderMultipleRootWithoutExtension = ctx => ctx.render('loader/from-view2');
 exports.loadSameFile = ctx => ctx.render('loader/a.nj');
+
+const tpl = 'hello world';
+const opt = { viewEngine: 'ejs' };
+exports.renderString = ctx => ctx.renderString(tpl, { data: 1 }, opt).then(data => ctx.body = data);
+exports.renderStringWithoutViewEngine = ctx => {
+  try {
+    return ctx.renderString(tpl)
+  } catch (err) {
+    return Promise.reject(err.message);
+  }
+};
+
+exports.renderLocals = ctx => {
+  ctx.locals = {
+    a: 1,
+    b: 1,
+  };
+  return ctx.render('ext/a.ejs', { b: 2 });
+};
+
+exports.renderStringLocals = ctx => {
+  ctx.locals = {
+    a: 1,
+    b: 1,
+  };
+  return ctx.render('', { b: 2 }, { viewEngine: 'ejs' });
+};

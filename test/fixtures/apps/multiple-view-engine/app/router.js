@@ -10,4 +10,9 @@ module.exports = app => {
   app.get('/render-multiple-root', 'view.renderMultipleRoot');
   app.get('/render-multiple-root-without-extenstion', 'view.renderMultipleRootWithoutExtension');
   app.get('/load-same-file', 'view.loadSameFile');
+
+  app.get('/render-string', 'view.renderString');
+  app.get('/render-string-without-view-engine', 'view.renderStringWithoutViewEngine');
+  app.get('/render-locals', 'view.renderLocals');
+  app.get('/render-string-locals', 'view.renderStringLocals');
 };

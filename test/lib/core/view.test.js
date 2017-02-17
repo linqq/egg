@@ -103,7 +103,47 @@ describe.only('test/lib/core/view.test.js', () => {
     });
 
     describe('renderString', () => {
+      it('should renderString', function* () {
+        const res = yield request(app.callback())
+          .get('/render-string')
+          .expect(200);
+        assert(res.body.tpl === 'hello world');
+        assert(res.body.locals.data === 1);
+        assert(res.body.options.viewEngine === 'ejs');
+        assert(res.body.type === 'ejs');
+      });
 
+      it('should throw when no viewEngine', function* () {
+        yield request(app.callback())
+          .get('/render-string-without-view-engine')
+          .expect(500);
+      });
+    });
+
+    describe('locals', () => {
+      it('should render with locals', function* () {
+        const res = yield request(app.callback())
+          .get('/render-locals')
+          .expect(200);
+        const locals = res.body.locals;
+        assert(locals.a === 1);
+        assert(locals.b === 2);
+        assert(locals.ctx);
+        assert(locals.request);
+        assert(locals.helper);
+      });
+
+      it('should renderString with locals', function* () {
+        const res = yield request(app.callback())
+          .get('/render-string-locals')
+          .expect(200);
+        const locals = res.body.locals;
+        assert(locals.a === 1);
+        assert(locals.b === 2);
+        assert(locals.ctx);
+        assert(locals.request);
+        assert(locals.helper);
+      });
     });
 
     describe('loadFile', () => {

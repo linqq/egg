@@ -13,7 +13,15 @@ class EjsView {
     };
   }
 
-  * renderString() {}
+  * renderString(tpl, locals, options) {
+    yield sleep(10);
+    return {
+      tpl,
+      locals,
+      options,
+      type: 'ejs',
+    };
+  }
 }
 
 module.exports = EjsView;
