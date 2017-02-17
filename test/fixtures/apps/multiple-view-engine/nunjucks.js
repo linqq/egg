@@ -9,6 +9,7 @@ class NunjucksView {
       filename,
       locals,
       options,
+      type: 'nunjucks',
     };
   }
 

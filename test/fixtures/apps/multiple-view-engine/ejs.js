@@ -9,6 +9,7 @@ class EjsView {
       filename,
       locals,
       options,
+      type: 'ejs',
     };
   }
 

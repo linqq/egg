@@ -78,6 +78,7 @@ describe.only('test/lib/core/view.test.js', () => {
         assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.ejs'));
         assert(res.body.locals.data === 1);
         assert(res.body.options.opt === 1);
+        assert(res.body.type === 'ejs');
       });
 
       it('should render nunjucks', function* () {
@@ -88,6 +89,16 @@ describe.only('test/lib/core/view.test.js', () => {
         assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.nj'));
         assert(res.body.locals.data === 1);
         assert(res.body.options.opt === 1);
+        assert(res.body.type === 'nunjucks');
+      });
+
+      it('should render with options.viewEngine', function* () {
+        const res = yield request(app.callback())
+          .get('/render-with-options')
+          .expect(200);
+
+        assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.nj'));
+        assert(res.body.type === 'ejs');
       });
     });
 
@@ -114,7 +125,7 @@ describe.only('test/lib/core/view.test.js', () => {
         yield request(app.callback())
           .get('/render-without-view-engine')
           .expect(500)
-          .expect(/Don&#39;t find ViewEngine by extension .html/);
+          .expect(/Don&#39;t find ViewEngine &quot;html&quot;/);
       });
 
       it('should load file from multiple root', function* () {

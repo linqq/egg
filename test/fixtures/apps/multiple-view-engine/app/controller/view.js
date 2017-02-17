@@ -2,6 +2,7 @@
 
 exports.renderEjs = ctx => ctx.render('ext/a.ejs', { data: 1 }, { opt: 1 });
 exports.renderNunjucks = ctx => ctx.render('ext/a.nj', { data: 1 }, { opt: 1 });
+exports.renderWithOptions = ctx => ctx.render('ext/a.nj', {}, { viewEngine: 'ejs' });
 
 exports.renderWithoutExt = ctx => ctx.render('loader/a', { data: 1 }, { opt: 1 });
 exports.renderExiWithoutConfig = ctx => {
