@@ -19,34 +19,74 @@ describe.only('test/lib/core/view.test.js', () => {
     });
     after(() => app.close());
 
-    it('should render ejs', function* () {
-      const res = yield request(app.callback())
-        .get('/render-ejs')
-        .expect(200);
+    describe('render', () => {
+      it('should render ejs', function* () {
+        const res = yield request(app.callback())
+          .get('/render-ejs')
+          .expect(200);
 
-      assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.ejs'));
-      assert(res.body.locals.data === 1);
-      assert(res.body.options.opt === 1);
+        assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.ejs'));
+        assert(res.body.locals.data === 1);
+        assert(res.body.options.opt === 1);
+      });
+
+      it('should render nunjucks', function* () {
+        const res = yield request(app.callback())
+          .get('/render-nunjucks')
+          .expect(200);
+
+        assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.nj'));
+        assert(res.body.locals.data === 1);
+        assert(res.body.options.opt === 1);
+      });
     });
 
-    it('should render nunjucks', function* () {
-      const res = yield request(app.callback())
-        .get('/render-nunjucks')
-        .expect(200);
+    describe('renderString', () => {
 
-      assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.nj'));
-      assert(res.body.locals.data === 1);
-      assert(res.body.options.opt === 1);
     });
 
-    it('should render without extension', function* () {
-      const res = yield request(app.callback())
-        .get('/render-without-ext')
-        .expect(200);
+    describe('loadFile', () => {
+      it('should loader without extension', function* () {
+        const res = yield request(app.callback())
+          .get('/render-without-ext')
+          .expect(200);
+        assert(res.body.filename === path.join(baseDir, 'app/view/loader/a.ejs'));
+      });
 
-      assert(res.body.filename === path.join(baseDir, 'app/view/ext/a.ejs'));
-      assert(res.body.locals.data === 1);
-      assert(res.body.options.opt === 1);
+      it('should throw when render file that extension is not configured', function* () {
+        yield request(app.callback())
+          .get('/render-ext-without-config')
+          .expect(500)
+          .expect(/.noext is not found in config.view.mapping/);
+      });
+
+      it('should throw when render file without viewEngine', function* () {
+        yield request(app.callback())
+          .get('/render-without-view-engine')
+          .expect(500)
+          .expect(/Don&#39;t find ViewEngine by extension .html/);
+      });
+
+      it('should load file from multiple root', function* () {
+        const res = yield request(app.callback())
+          .get('/render-multiple-root')
+          .expect(200);
+        assert(res.body.filename === path.join(baseDir, 'app/view2/loader/from-view2.ejs'));
+      });
+
+      it('should load file from multiple root when without extension', function* () {
+        const res = yield request(app.callback())
+          .get('/render-multiple-root-without-extenstion')
+          .expect(200);
+        assert(res.body.filename === path.join(baseDir, 'app/view2/loader/from-view2.ejs'));
+      });
+
+      it('should render load "name" before "name + defaultExt" in multiple root', function* () {
+        const res = yield request(app.callback())
+          .get('/load-same-file')
+          .expect(200);
+        assert(res.body.filename === path.join(baseDir, 'app/view2/loader/a.nj'));
+      });
     });
   });
 
