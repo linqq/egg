@@ -19,6 +19,56 @@ describe.only('test/lib/core/view.test.js', () => {
     });
     after(() => app.close());
 
+    describe('use', () => {
+      it('should throw when name do not exist', () => {
+        assert.throws(() => {
+          app.view.use();
+        }, /name is required/);
+      });
+
+      it('should throw when viewEngine do not exist', () => {
+        assert.throws(() => {
+          app.view.use('a');
+        }, /viewEngine is required/);
+      });
+
+      it('should throw when name has been registered', () => {
+        class View {
+          render() {}
+          renderString() {}
+        }
+        app.view.use('b', View);
+        assert.throws(() => {
+          app.view.use('b', View);
+        }, /b has been registered/);
+      });
+
+      it('should throw when not implement render', () => {
+        class View {}
+        assert.throws(() => {
+          app.view.use('c', View);
+        }, /viewEngine should implement `render` method/);
+      });
+
+      it('should throw when not implement render', () => {
+        class View {
+          render() {}
+        }
+        assert.throws(() => {
+          app.view.use('d', View);
+        }, /viewEngine should implement `renderString` method/);
+      });
+
+      it('should register success', () => {
+        class View {
+          render() {}
+          renderString() {}
+        }
+        app.view.use('e', View);
+        // assert(app.view.has('e'));
+      });
+    });
+
     describe('render', () => {
       it('should render ejs', function* () {
         const res = yield request(app.callback())
