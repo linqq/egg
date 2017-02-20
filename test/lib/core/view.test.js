@@ -7,7 +7,7 @@ const mock = require('egg-mock');
 const utils = require('../../utils');
 
 
-describe.only('test/lib/core/view.test.js', () => {
+describe('test/lib/core/view.test.js', () => {
   afterEach(mock.restore);
 
   describe('multiple view engine', () => {
@@ -20,45 +20,6 @@ describe.only('test/lib/core/view.test.js', () => {
     after(() => app.close());
 
     describe('use', () => {
-      it('should throw when name do not exist', () => {
-        assert.throws(() => {
-          app.view.use();
-        }, /name is required/);
-      });
-
-      it('should throw when viewEngine do not exist', () => {
-        assert.throws(() => {
-          app.view.use('a');
-        }, /viewEngine is required/);
-      });
-
-      it('should throw when name has been registered', () => {
-        class View {
-          render() {}
-          renderString() {}
-        }
-        app.view.use('b', View);
-        assert.throws(() => {
-          app.view.use('b', View);
-        }, /b has been registered/);
-      });
-
-      it('should throw when not implement render', () => {
-        class View {}
-        assert.throws(() => {
-          app.view.use('c', View);
-        }, /viewEngine should implement `render` method/);
-      });
-
-      it('should throw when not implement render', () => {
-        class View {
-          render() {}
-        }
-        assert.throws(() => {
-          app.view.use('d', View);
-        }, /viewEngine should implement `renderString` method/);
-      });
-
       it('should register success', () => {
         class View {
           render() {}
@@ -119,75 +80,52 @@ describe.only('test/lib/core/view.test.js', () => {
           .expect(500);
       });
     });
+  });
 
-    describe('locals', () => {
-      it('should render with locals', function* () {
-        const res = yield request(app.callback())
-          .get('/render-locals')
-          .expect(200);
-        const locals = res.body.locals;
-        assert(locals.a === 1);
-        assert(locals.b === 2);
-        assert(locals.ctx);
-        assert(locals.request);
-        assert(locals.helper);
-      });
-
-      it('should renderString with locals', function* () {
-        const res = yield request(app.callback())
-          .get('/render-string-locals')
-          .expect(200);
-        const locals = res.body.locals;
-        assert(locals.a === 1);
-        assert(locals.b === 2);
-        assert(locals.ctx);
-        assert(locals.request);
-        assert(locals.helper);
-      });
+  describe.skip('nunjucks view', () => {
+    let app;
+    before(() => {
+      app = utils.app('apps/view-render');
+      return app.ready();
+    });
+    before(() => {
+      app.locals = {
+        copyright: '2014 @ mk2 <br>',
+      };
     });
 
-    describe('loadFile', () => {
-      it('should loader without extension', function* () {
-        const res = yield request(app.callback())
-          .get('/render-without-ext')
-          .expect(200);
-        assert(res.body.filename === path.join(baseDir, 'app/view/loader/a.ejs'));
-      });
+    it('should render with options', function(done) {
+      request(app.callback())
+      .get('/')
+      .expect(200)
+      .expect(`Hi, mk・2\ntest-app-helper: test-bar@${app.config.baseDir}\nraw: <div>dar</div>\n2014 @ mk2 &lt;br&gt;\n`, done);
+    });
 
-      it('should throw when render file that extension is not configured', function* () {
-        yield request(app.callback())
-          .get('/render-ext-without-config')
-          .expect(500)
-          .expect(/.noext is not found in config.view.mapping/);
-      });
+    it('should render with async function controller', function(done) {
+      request(app.callback())
+      .get('/async')
+      .expect(200)
+      .expect(`Hi, mk・2\ntest-app-helper: test-bar@${app.config.baseDir}\nraw: <div>dar</div>\n2014 @ mk2 &lt;br&gt;\n`, done);
+    });
 
-      it('should throw when render file without viewEngine', function* () {
-        yield request(app.callback())
-          .get('/render-without-view-engine')
-          .expect(500)
-          .expect(/Don&#39;t find ViewEngine &quot;html&quot;/);
-      });
+    it('should render have helper instance', function(done) {
+      request(app.callback())
+      .get('/')
+      .expect(200, done);
+    });
 
-      it('should load file from multiple root', function* () {
-        const res = yield request(app.callback())
-          .get('/render-multiple-root')
-          .expect(200);
-        assert(res.body.filename === path.join(baseDir, 'app/view2/loader/from-view2.ejs'));
-      });
+    it('should render with empty', function(done) {
+      request(app.callback())
+      .get('/empty')
+      .expect(200)
+      .expect(`Hi, \ntest-app-helper: test-bar@${app.config.baseDir}\nraw: <div>dar</div>\n2014 @ mk2 &lt;br&gt;\n`, done);
+    });
 
-      it('should load file from multiple root when without extension', function* () {
-        const res = yield request(app.callback())
-          .get('/render-multiple-root-without-extenstion')
-          .expect(200);
-        assert(res.body.filename === path.join(baseDir, 'app/view2/loader/from-view2.ejs'));
-      });
-
-      it('should render load "name" before "name + defaultExt" in multiple root', function* () {
-        const res = yield request(app.callback())
-          .get('/load-same-file')
-          .expect(200);
-        assert(res.body.filename === path.join(baseDir, 'app/view2/loader/a.nj'));
-      });
+    it('should render template string', function(done) {
+      request(app.callback())
+      .get('/string')
+      .expect(200)
+      .expect('templateString', done);
     });
   });
 
